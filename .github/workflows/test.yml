@@ -1,0 +1,44 @@
+name: Rust
+
+on: [push, pull_request]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build
+      run: cargo build --verbose
+
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Docker Compose
+      uses: docker/setup-compose-action@v1
+      with:
+        version: v2.33.1
+    - name: Run
+      run: ./test.sh
+    - uses: actions/upload-artifact@v4
+      with:
+        name: dump.pcap
+        path: dumps/dump.pcap
+
+  iperf:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Docker Compose
+      uses: docker/setup-compose-action@v1
+      with:
+        version: v2.33.1
+    - name: Run
+      run: ./iperf.sh

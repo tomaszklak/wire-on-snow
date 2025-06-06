@@ -1,0 +1,36 @@
+services:
+  server:
+    build: ./server
+    container_name: wireguard_server
+    networks:
+      wireguard_net:
+        ipv4_address: 192.168.200.2
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    sysctls:
+      - net.ipv4.ip_forward=1
+    restart: unless-stopped
+    volumes:
+      - ./dumps:/dumps
+
+  client:
+    build: .
+    container_name: wireguard_client
+    networks:
+      wireguard_net:
+        ipv4_address: 192.168.200.3
+    cap_add:
+      - NET_ADMIN
+    depends_on:
+      - server
+    environment:
+      - RUST_BACKTRACE=full
+    restart: unless-stopped
+
+networks:
+  wireguard_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.200.0/24
